@@ -205,7 +205,7 @@ class LeetCodeSpreadSheetGenerator:
             bar = tqdm(row_range)
             bar.set_description(level)
             for start, end in bar:
-                self.sheetwriter.update_backgroundcolor(level_color[level], [start, end], [2,3])
+                self.sheetwriter.update_backgroundcolor(self.level_color[level], [start, end], [2,3])
                 time.sleep(1)
 
     def run(self):
