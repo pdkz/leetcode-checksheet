@@ -105,11 +105,11 @@ class SpreadSheetWriter:
 
 
 class LeetCodeSpreadSheetGenerator:
-    def __init__(self, sheetwriter, problems_filename='leetcode.json'):
+    def __init__(self, sheetwriter, prob_filename='leetcode.json'):
         self.sheetwriter = sheetwriter
         self.solved_problems = []
         self.problems_info = defaultdict(dict)
-        self.problems_filename = problems_filename
+        self.prob_filename = prob_filename
         self.color_row_ranges = { 'Easy':[], 'Medium': [], 'Hard': [] }
 
         self.level_color = {'Easy':   [21/255., 171/255. ,0.], 
@@ -117,11 +117,11 @@ class LeetCodeSpreadSheetGenerator:
                             'Hard':   [1.      ,43/255.  ,0.]}
 
     def __load(self):
-        if not os.path.exists(self.problems_filename):
+        if not os.path.exists(self.prob_filename):
             return False
 
         json_obj = None
-        with open(self.problems_filename, 'r') as f:
+        with open(self.prob_filename, 'r') as f:
             json_obj = json.load(f)
         
         return json_obj
@@ -232,18 +232,22 @@ def parse_args():
                         required=True,
                         help="Specify Google SpreadSheet ID"
                         )
-    parser.add_argument("-f","--credentials_file",
+    parser.add_argument("-c","--credentials_file",
                         default='credentials.json',
-                        help="Specify a credentials file of json format"
+                        help="Specify a credentials file as json format"
+                        )
+    parser.add_argument("-p","--problems_file",
+                        default='leetcode_problems.json',
+                        help="Specify a leetcode problems file as json format"
                         )
     args = parser.parse_args()
 
     return args
 
 def main(args):
-    spreadsheet_id, credentials_filename = args.spreadsheet_id, args.credentials_file
+    spreadsheet_id, credentials_filename, problems_filename = args.spreadsheet_id, args.credentials_file, args.problems_file
     sheetwriter = SpreadSheetWriter(spreadsheet_id, cred_filename=credentials_filename)
-    generator = LeetCodeSpreadSheetGenerator(sheetwriter)
+    generator = LeetCodeSpreadSheetGenerator(sheetwriter, prob_filename=problems_filename)
     generator.run()
     
 if __name__ == '__main__' :
