@@ -110,11 +110,15 @@ class LeetCodeSpreadSheetGenerator:
         self.solved_problems = []
         self.problems_info = defaultdict(dict)
         self.prob_filename = prob_filename
-        self.color_row_ranges = { 'Easy':[], 'Medium': [], 'Hard': [] }
+        self.color_row_ranges = {
+            'Easy':[],
+            'Medium':[],
+            'Hard': [] }
 
-        self.level_color = {'Easy':   [21/255., 171/255. ,0.], 
-                            'Medium': [1.      ,159/255. ,0.], 
-                            'Hard':   [1.      ,43/255.  ,0.]}
+        self.level_color = {
+            'Easy': [21/255., 171/255., 0.], 
+            'Medium': [1. ,159/255., 0.], 
+            'Hard': [1. ,43/255., 0.]}
 
     def __load(self):
         if not os.path.exists(self.prob_filename):
@@ -123,7 +127,7 @@ class LeetCodeSpreadSheetGenerator:
         json_obj = None
         with open(self.prob_filename, 'r') as f:
             json_obj = json.load(f)
-        
+
         return json_obj
 
     def __parse_problems(self):
@@ -131,9 +135,10 @@ class LeetCodeSpreadSheetGenerator:
         if not json_obj:
             return False
 
-        levels = {  1: 'Easy', 
-                    2: 'Medium', 
-                    3: 'Hard' }
+        levels = {
+            1:'Easy',
+            2:'Medium',
+            3:'Hard' }
 
         problems = json_obj['stat_status_pairs']
         for problem in problems:
@@ -144,10 +149,11 @@ class LeetCodeSpreadSheetGenerator:
             question_title = stat['question__title']
             question_slug  = stat['question__title_slug']
 
-            self.problems_info[question_id] = { 'title': question_title, 
-                                                'slug': question_slug, 
-                                                'level':levels[level]}
-            
+            self.problems_info[question_id] = {
+                'title':question_title,
+                'slug':question_slug,
+                'level':levels[level]}
+
             status = problem['status']
             if status == 'ac':
                 self.solved_problems.append(question_id)
@@ -158,11 +164,11 @@ class LeetCodeSpreadSheetGenerator:
 
     def __make_problem_url(self, slug):
         return 'https://leetcode.com/problems/{}/'.format(slug)
-    
+
     def __list_problems(self):
         problems = [['Id', 'Title', 'Difficulty', 'Solved']]
         num_of_problems = len(self.problems_info)
-        
+
         prev_level = None
         level_row_count = 0
         start = 1
@@ -186,14 +192,14 @@ class LeetCodeSpreadSheetGenerator:
 
                 start = start + level_row_count
                 level_row_count = 0
-            
+
             level_row_count += 1
             prev_level = level
 
             solved = ''
             if i in self.solved_problems:
                 solved = u'◯'
-            
+
             problems.append([problem_idx, title, level, solved])
 
         return problems
@@ -205,7 +211,8 @@ class LeetCodeSpreadSheetGenerator:
             bar = tqdm(row_range)
             bar.set_description(level)
             for start, end in bar:
-                self.sheetwriter.update_backgroundcolor(self.level_color[level], [start, end], [2,3])
+                self.sheetwriter.update_backgroundcolor(
+                    self.level_color[level], [start, end], [2,3])
                 time.sleep(1)
 
     def run(self):
@@ -225,21 +232,24 @@ class LeetCodeSpreadSheetGenerator:
         return True
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog='gen.py',
-                                    description="LeetCode spreadsheet generator")
+    parser = argparse.ArgumentParser(
+        prog='gen.py',
+        description="LeetCode spreadsheet generator")
 
-    parser.add_argument("-i","--spreadsheet_id",
-                        required=True,
-                        help="Specify Google SpreadSheet ID"
-                        )
-    parser.add_argument("-c","--credentials_file",
-                        default='credentials.json',
-                        help="Specify a credentials file as json format"
-                        )
-    parser.add_argument("-p","--problems_file",
-                        default='leetcode_problems.json',
-                        help="Specify a leetcode problems file as json format"
-                        )
+    parser.add_argument(
+        "-i","--spreadsheet_id",
+        required=True,
+        help="Specify Google SpreadSheet ID")
+
+    parser.add_argument(
+        "-c","--credentials_file",
+        default='credentials.json',
+        help="Specify a credentials file as json format")
+
+    parser.add_argument(
+        "-p","--problems_file",
+        default='leetcode_problems.json',
+        help="Specify a leetcode problems file as json format")
     args = parser.parse_args()
 
     return args
@@ -249,7 +259,7 @@ def main(args):
     sheetwriter = SpreadSheetWriter(spreadsheet_id, cred_filename=credentials_filename)
     generator = LeetCodeSpreadSheetGenerator(sheetwriter, prob_filename=problems_filename)
     generator.run()
-    
+
 if __name__ == '__main__' :
     args = parse_args()
     main(args)
